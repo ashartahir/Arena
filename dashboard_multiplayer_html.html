@@ -92,6 +92,7 @@
             border-radius: 20px;
             text-align: center;
             border: 2px solid rgba(145, 36, 255, 0.5);
+            margin-bottom: 30px;
         }
 
         .lobby-icon {
@@ -553,6 +554,156 @@
                 width: 100%;
             }
         }
+
+        .tournament-card {
+            border: 2px solid #ffd93d;
+            /* golden highlight for tournaments */
+        }
+
+        .tournament-card .lobby-title {
+            background: linear-gradient(45deg, #FFD93D, #FFB800);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .tournament-card .btn-find-match {
+            background: linear-gradient(135deg, #FFD93D, #FFB800);
+        }
+
+        .tournament-card .btn-find-match:hover {
+            box-shadow: 0 10px 30px rgba(255, 217, 61, 0.6);
+            transform: translateY(-3px);
+        }
+
+        /* Tournament Section for Spectators - Bottom Layout */
+        .spectator-bottom-section {
+            padding: 30px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .bottom-cards-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .bottom-card {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(20px);
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid rgba(145, 36, 255, 0.5);
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .bottom-card-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(145, 36, 255, 0.5);
+        }
+
+        .tournament-item {
+            background: rgba(255, 217, 61, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border: 2px solid rgba(255, 217, 61, 0.3);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tournament-item:hover {
+            border-color: #ffd93d;
+            transform: translateY(-2px);
+        }
+
+        .tournament-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .tournament-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffd93d;
+        }
+
+        .tournament-status {
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .tournament-status.live {
+            background: #e74c3c;
+            color: white;
+            animation: pulse 1.5s infinite;
+        }
+
+        .tournament-status.upcoming {
+            background: #3498db;
+            color: white;
+        }
+
+        .tournament-info {
+            font-size: 14px;
+            color: #aaa;
+            margin: 5px 0;
+        }
+
+        .btn-watch {
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px;
+            background: linear-gradient(135deg, #ffd93d, #ffb800);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-watch:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-watch:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .match-item-bottom {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .match-item-bottom:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .match-item-bottom.active {
+            background: linear-gradient(135deg, #9124FF, #FF6682);
+            border-color: #ffd93d;
+        }
+
+        @media (max-width: 1200px) {
+            .bottom-cards-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 
@@ -587,6 +738,13 @@
                     <div class="searching-text">🔍 Searching for opponent...</div>
                     <button class="btn-cancel" onclick="cancelSearch()">Cancel Search</button>
                 </div>
+            </div>
+            <div class="lobby-card tournament-card">
+                <div class="lobby-icon">🏆</div>
+                <div class="lobby-title">Tournaments</div>
+                <div class="lobby-subtitle">Register for tournaments or view upcoming events!</div>
+                <button class="btn-find-match" onclick="goToTournamentRegistration()">📝 Tournament
+                    Registration</button>
             </div>
         </div>
     </div>
@@ -663,20 +821,23 @@
         </div>
 
         <div class="spectator-content">
-            <div class="matches-sidebar">
-                <div class="matches-title">🎮 Live Matches</div>
-                <div id="matchesList">
-                    <div style="text-align: center; color: #aaa; padding: 40px 20px;">
-                        No active matches
-                    </div>
-                </div>
+            <!-- Side Ad Banner (Left Side) -->
+            <div id="spectatorAdSide" class="ad-banner-side" style="display: none;">
+                <div style="font-size: 60px; margin-bottom: 15px;">📱</div>
+                <a id="spectatorAdSideLink" href="#" target="_blank"
+                    style="color: black; font-weight: bold; text-decoration: none;">
+                    <div id="spectatorAdSideText" style="font-size: 18px;"></div>
+                </a>
+                <div style="margin-top: 12px; font-size: 13px;">Click to learn more!</div>
             </div>
 
+            <!-- Main Spectate Area -->
             <div class="spectate-area">
                 <div id="spectateEmpty" class="empty-spectate">
                     <div class="empty-icon">👁️</div>
                     <div style="font-size: 32px; margin-bottom: 15px;">No Match Selected</div>
-                    <div style="font-size: 18px; color: #aaa;">Select a live match to start spectating</div>
+                    <div style="font-size: 18px; color: #aaa;">Select a live match or tournament from below to start
+                        spectating</div>
                 </div>
 
                 <div id="spectateActive" style="display: none;">
@@ -697,23 +858,34 @@
                         <div class="game-timer">⏱️ <span id="specTimer">60</span>s</div>
                     </div>
 
-                    <div style="display: flex; gap: 30px;">
-                        <div id="spectatorAdSide" class="ad-banner-side" style="display: none;">
-                            <div style="font-size: 60px; margin-bottom: 15px;">📱</div>
-                            <a id="spectatorAdSideLink" href="#" target="_blank"
-                                style="color: black; font-weight: bold; text-decoration: none;">
-                                <div id="spectatorAdSideText" style="font-size: 18px;"></div>
-                            </a>
-                        </div>
-
-                        <div class="game-canvas"
-                            style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                            <div style="font-size: 100px; margin-bottom: 30px;">🎮</div>
-                            <div style="font-size: 32px; margin-bottom: 15px;">Live Match View</div>
-                            <div style="font-size: 20px; color: #aaa;">Watching <span id="specWatchingNames"></span>
-                                play!</div>
+                    <div class="game-canvas"
+                        style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                        <div style="font-size: 100px; margin-bottom: 30px;">🎮</div>
+                        <div style="font-size: 32px; margin-bottom: 15px;">Live Match View</div>
+                        <div style="font-size: 20px; color: #aaa;">Watching <span id="specWatchingNames"></span> play!
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Section: Live Matches & Tournaments -->
+        <div class="spectator-bottom-section">
+            <div class="bottom-cards-grid">
+                <!-- Live Matches Card -->
+                <div class="bottom-card">
+                    <div class="bottom-card-title">🎮 Live Matches</div>
+                    <div id="matchesListBottom">
+                        <div style="text-align: center; color: #aaa; padding: 40px 20px;">
+                            No active matches
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tournaments Card -->
+                <div class="bottom-card">
+                    <div class="bottom-card-title">🏆 Tournaments</div>
+                    <div id="tournamentsListBottom"></div>
                 </div>
             </div>
         </div>
@@ -873,53 +1045,55 @@
                 showPage('spectatorPage');
                 loadAds('spectator');
                 loadLiveMatches();
-                spectateInterval = setInterval(loadLiveMatches, 2000);
+                loadTournaments(); // Add this line
+                spectateInterval = setInterval(() => {
+                    loadLiveMatches();
+                    loadTournaments(); // Add this line
+                }, 2000);
             }
 
             // Advertiser
             if (currentRole === 'advertiser') {
-                const el = document.getElementById('advertiserUsername');
-                if (el) el.textContent = currentUser;
-                showPage('advertiserPage');
-                loadAdvertiserAds();
+                window.location.href = 'admin_dashboard.html';
+                return;
             }
         }
 
         /* ================= ADS ================= */
         function loadAds(context) {
-    const ads = JSON.parse(localStorage.getItem('arenaAds') || '[]');
-    if (!ads.length) return;
+            const ads = JSON.parse(localStorage.getItem('arenaAds') || '[]');
+            if (!ads.length) return;
 
-    const pick = list => list[Math.floor(Math.random() * list.length)];
+            const pick = list => list[Math.floor(Math.random() * list.length)];
 
-    const top = ads.filter(a => a.zone === 'top');
-    const side = ads.filter(a => a.zone === 'side');
+            const top = ads.filter(a => a.zone === 'top');
+            const side = ads.filter(a => a.zone === 'side');
 
-    function inject(ad, textId, linkId, boxId) {
-        const textEl = document.getElementById(textId);
-        const linkEl = document.getElementById(linkId);
-        const boxEl = document.getElementById(boxId);
+            function inject(ad, textId, linkId, boxId) {
+                const textEl = document.getElementById(textId);
+                const linkEl = document.getElementById(linkId);
+                const boxEl = document.getElementById(boxId);
 
-        if (!ad || !textEl || !linkEl || !boxEl) return;
+                if (!ad || !textEl || !linkEl || !boxEl) return;
 
-        textEl.textContent = ad.title;
-        linkEl.href = ad.url;
-        boxEl.style.display = 'block';
-    }
+                textEl.textContent = ad.title;
+                linkEl.href = ad.url;
+                boxEl.style.display = 'block';
+            }
 
-    if (top.length) {
-        const ad = pick(top);
-        if (context === 'lobby') inject(ad, 'lobbyAdTopText', 'lobbyAdTopLink', 'lobbyAdTop');
-        if (context === 'game') inject(ad, 'gameAdTopText', 'gameAdTopLink', 'gameAdTop');
-        if (context === 'spectator') inject(ad, 'spectatorAdTopText', 'spectatorAdTopLink', 'spectatorAdTop');
-    }
+            if (top.length) {
+                const ad = pick(top);
+                if (context === 'lobby') inject(ad, 'lobbyAdTopText', 'lobbyAdTopLink', 'lobbyAdTop');
+                if (context === 'game') inject(ad, 'gameAdTopText', 'gameAdTopLink', 'gameAdTop');
+                if (context === 'spectator') inject(ad, 'spectatorAdTopText', 'spectatorAdTopLink', 'spectatorAdTop');
+            }
 
-    if (side.length) {
-        const ad = pick(side);
-        if (context === 'game') inject(ad, 'gameAdSideText', 'gameAdSideLink', 'gameAdSide');
-        if (context === 'spectator') inject(ad, 'spectatorAdSideText', 'spectatorAdSideLink', 'spectatorAdSide');
-    }
-}
+            if (side.length) {
+                const ad = pick(side);
+                if (context === 'game') inject(ad, 'gameAdSideText', 'gameAdSideLink', 'gameAdSide');
+                if (context === 'spectator') inject(ad, 'spectatorAdSideText', 'spectatorAdSideLink', 'spectatorAdSide');
+            }
+        }
 
         /* ================= MATCHMAKING ================= */
         let currentGameType = null; // "target" or "box"
@@ -1257,8 +1431,108 @@
 
             specWatchingNames.textContent = `${match.player1} vs ${match.player2}`;
         }
+        function goToTournamentRegistration() {
+            window.location.href = 'player_tournament_page.html';
+        }
 
+        function loadTournaments() {
+            const tournaments = JSON.parse(localStorage.getItem('tournaments') || '[]');
+            const list = document.getElementById('tournamentsListBottom'); // Changed ID
 
+            if (!tournaments.length) {
+                list.innerHTML = `
+            <div style="text-align: center; color: #aaa; padding: 20px;">
+                <div style="font-size: 48px; margin-bottom: 10px;">🏆</div>
+                <div>No tournaments available</div>
+            </div>
+        `;
+                return;
+            }
+
+            list.innerHTML = '';
+
+            tournaments.forEach(tournament => {
+                const now = Date.now();
+                const startTime = new Date(tournament.startDate).getTime();
+
+                let status = 'upcoming';
+                let statusText = 'Upcoming';
+                let canWatch = false;
+
+                if (tournament.status === 'live' || (now >= startTime)) {
+                    status = 'live';
+                    statusText = '🔴 LIVE';
+                    canWatch = true;
+                }
+
+                const div = document.createElement('div');
+                div.className = 'tournament-item';
+
+                div.innerHTML = `
+            <div class="tournament-header">
+                <div class="tournament-title">🏆 ${tournament.name}</div>
+                <span class="tournament-status ${status}">${statusText}</span>
+            </div>
+            <div class="tournament-info">
+                📅 ${new Date(tournament.startDate).toLocaleDateString()} 
+                ${new Date(tournament.startDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </div>
+            <div class="tournament-info">
+                🎮 ${tournament.gameType || 'Target Game'}
+            </div>
+            <div class="tournament-info">
+                👥 ${tournament.participants?.length || 0}/${tournament.maxParticipants} participants
+            </div>
+            <button class="btn-watch" 
+                    onclick="watchTournament('${tournament.id}')" 
+                    ${!canWatch ? 'disabled' : ''}>
+                ${status === 'live' ? '👁️ Watch Now' : '⏰ Not Started'}
+            </button>
+        `;
+
+                list.appendChild(div);
+            });
+        }
+
+        function watchTournament(tournamentId) {
+            const tournaments = JSON.parse(localStorage.getItem('tournaments') || '[]');
+            const tournament = tournaments.find(t => t.id === tournamentId);
+
+            if (!tournament) return;
+
+            alert(`Watching: ${tournament.name}\nParticipants: ${tournament.participants?.length || 0}\nStatus: ${tournament.status || 'upcoming'}`);
+
+            // You can add more viewing logic here
+        }
+
+        // Sample tournament data (for testing)
+        function createSampleTournaments() {
+            const tournaments = [
+                {
+                    id: 'tournament_1',
+                    name: 'Winter Championship 2026',
+                    startDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+                    gameType: 'Target Game',
+                    maxParticipants: 16,
+                    participants: ['Player1', 'Player2', 'Player3'],
+                    status: 'upcoming'
+                },
+                {
+                    id: 'tournament_2',
+                    name: 'Weekly Arena Cup',
+                    startDate: new Date().toISOString(),
+                    gameType: 'Box Game',
+                    maxParticipants: 8,
+                    participants: ['Alice', 'Bob', 'Charlie', 'David'],
+                    status: 'live'
+                }
+            ];
+
+            localStorage.setItem('tournaments', JSON.stringify(tournaments));
+        }
+
+        // Uncomment to create sample data
+        createSampleTournaments();
 
     </script>
 
