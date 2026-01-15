@@ -147,8 +147,7 @@
                     </li>
                     <li id="menu-item-558"
                       class="signup-header-cta menu-item menu-item-type-custom menu-item-object-custom nectar-regular-menu-item menu-item-btn-style-button_accent-color menu-item-558">
-                      <a target="_blank" rel="noopener" href="#"><span
-                          class="menu-title-text">Signup</span></a>
+                      <a target="_blank" rel="noopener" href="#"><span class="menu-title-text">Signup</span></a>
                     </li>
                     <li id="search-btn">
                       <div><a href="#searchbox"><span class="icon-salient-search" aria-hidden="true"></span><span
@@ -588,54 +587,75 @@
   <script></script>
   <script data-optimized="1"
     src="https://arena.im/wp-content/litespeed/js/511b33c91155628e89df04c67e2a8bd0.js?ver=47724" defer></script>
-<script>
-/* ---------- ERROR HANDLING ---------- */
-function showError(message) {
-    const errorDiv = document.getElementById('errorMessage');
-    if(!errorDiv) return;
-    errorDiv.textContent = message;
-    errorDiv.style.display = 'block';
-    setTimeout(() => errorDiv.style.display = 'none', 3000);
-}
+  <script>
+    /* ---------- ERROR HANDLING ---------- */
+    function showError(message) {
+      const errorDiv = document.getElementById('errorMessage');
+      if (!errorDiv) return;
+      errorDiv.textContent = message;
+      errorDiv.style.display = 'block';
+      setTimeout(() => errorDiv.style.display = 'none', 3000);
+    }
 
-/* ---------- LOGIN ---------- */
-function handleLogin() {
-    const username = document.getElementById('loginUsername').value.trim();
-    const password = document.getElementById('loginPassword').value.trim();
-    const role = document.getElementById('loginRole').value;
 
-    if (!username) return showError('Please enter a username');
-    if (!password) return showError('Please enter a password');
+    /* ---------- LOGIN ---------- */
+    function handleLogin() {
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+      const role = document.getElementById('loginRole').value;
 
-    // Create session object
-    const session = {
+      if (!username) return showError('Please enter a username');
+      if (!password) return showError('Please enter a password');
+
+      let users = JSON.parse(localStorage.getItem('platformUsers')) || [];
+
+      let existing = users.find(u => u.username === username);
+      // 🚫 Blocked user check
+      if (existing && existing.blocked) {
+        showError('Your account has been blocked by admin');
+        return;
+      }
+      
+      if (!existing) {
+        users.push({
+          username,
+          role,
+          blocked: false,
+          joinDate: new Date().toLocaleDateString()
+        });
+        localStorage.setItem('platformUsers', JSON.stringify(users));
+      }
+
+
+      // Create session object
+      const session = {
         user: username,
         role: role,
-        expiresAt: Date.now() + 30*60*1000 // 30 minutes
-    };
+        expiresAt: Date.now() + 30 * 60 * 1000 // 30 minutes
+      };
 
-    localStorage.setItem('session', JSON.stringify(session));
-    localStorage.setItem('currentUser', username);
-    localStorage.setItem('currentRole', role);
+      localStorage.setItem('session', JSON.stringify(session));
+      localStorage.setItem('currentUser', username);
+      localStorage.setItem('currentRole', role);
 
-    // Redirect to dashboard
-    window.location.href = 'dashboard_multiplayer_html.html';
-}
+      // Redirect to dashboard
+      window.location.href = 'dashboard_multiplayer_html.html';
+    }
 
-/* ---------- ENTER KEY SUBMIT ---------- */
-document.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter') handleLogin();
-});
+    /* ---------- ENTER KEY SUBMIT ---------- */
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') handleLogin();
+    });
 
-/* ---------- AUTO REDIRECT IF LOGGED IN ---------- */
-window.onload = function() {
-    const session = JSON.parse(localStorage.getItem('session') || '{}');
-    if (session.user && Date.now() < session.expiresAt) {
+    /* ---------- AUTO REDIRECT IF LOGGED IN ---------- */
+    window.onload = function () {
+      const session = JSON.parse(localStorage.getItem('session') || '{}');
+      if (session.user && Date.now() < session.expiresAt) {
         // valid session
         window.location.href = 'dashboard_multiplayer_html.html';
-    }
-};
-</script>
+      }
+    };
+  </script>
 
 </body>
 
