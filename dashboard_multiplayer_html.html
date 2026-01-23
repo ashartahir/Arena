@@ -267,6 +267,24 @@
             animation: float 2s ease-in-out infinite;
             box-shadow: 0 4px 15px rgba(231, 76, 60, 0.8);
             transition: transform 0.2s;
+            z-index: 20;
+        }
+
+        .box-target {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 6px;
+            /* 🔲 square with slight rounding */
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 20;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
         .target:hover {
@@ -581,6 +599,7 @@
                 <div id="matchmakingBtn">
                     <button class="btn-find-match" onclick="startTargetGame()">🎯 Target Game</button>
                     <button class="btn-find-match" onclick="startBoxGame()">🟦 Box Game</button>
+                    <button class="btn-find-match" onclick="startTicTacToe()">❌⭕ Tic Tac Toe</button>
                 </div>
 
                 <div id="searchingState" style="display: none;">
@@ -588,6 +607,27 @@
                     <button class="btn-cancel" onclick="cancelSearch()">Cancel Search</button>
                 </div>
             </div>
+<<<<<<< Updated upstream
+=======
+            <div class="lobby-card">
+                <div class="lobby-icon">🏅</div>
+                <div class="lobby-title">Leagues</div>
+                <div class="lobby-subtitle">
+                    Join ongoing leagues, track rankings, and compete across tournaments!
+                </div>
+                <button class="btn-find-match" onclick="goToLeagues()">
+                    🏅 Browse Leagues
+                </button>
+            </div>
+
+            <div class="lobby-card tournament-card">
+                <div class="lobby-icon">🏆</div>
+                <div class="lobby-title">Tournaments</div>
+                <div class="lobby-subtitle">Register for tournaments or view upcoming events!</div>
+                <button class="btn-find-match" onclick="goToTournamentRegistration()">📝 Tournament
+                    Registration</button>
+            </div>
+>>>>>>> Stashed changes
         </div>
     </div>
 
@@ -633,7 +673,22 @@
                         🖱️ Move mouse to control<br>
                         🎯 Click targets to score
                     </div>
-
+                    <!-- ✅ ADD THIS BLOCK -->
+                    <div id="tttBoard" style="
+        display:none;
+        width:300px;
+        height:300px;
+        display:grid;
+        grid-template-columns:repeat(3,1fr);
+        gap:10px;
+        margin:auto;
+        position:absolute;
+        top:50%;
+        left:50%;
+        transform:translate(-50%, -50%);
+    ">
+                    </div>
+                    <!-- ✅ END -->
                     <div id="gameOverOverlay" class="game-over-overlay" style="display: none;">
                         <div class="winner-icon" id="winnerIcon">🏆</div>
                         <div class="winner-text" id="winnerText">You Win!</div>
@@ -818,6 +873,11 @@
         let searchInterval = null;
         let spectateInterval = null;
         let isPlayer1 = false;
+        let botInterval = null;
+        let isBotMatch = false;
+        let gameCanvas = null;
+        let tttBoard = [];
+        let currentTurn = 'X';
 
         /* ================= PAGE CONTROL ================= */
         function showPage(id) {
@@ -876,12 +936,17 @@
                 spectateInterval = setInterval(loadLiveMatches, 2000);
             }
 
-            // Advertiser
+            // Admin
             if (currentRole === 'advertiser') {
                 const el = document.getElementById('advertiserUsername');
                 if (el) el.textContent = currentUser;
                 showPage('advertiserPage');
                 loadAdvertiserAds();
+            }
+            //League Owner
+            if (currentRole === 'LeagueOwner') {
+                window.location.href = 'league_owner_dashboard.html';
+                return;
             }
         }
 
@@ -935,7 +1000,7 @@
             findMatch();
         }
 
-        function findMatch() {
+        /*function findMatch() {
             const btn = document.getElementById('matchmakingBtn');
             const searchDiv = document.getElementById('searchingState');
             if (btn) btn.style.display = 'none';
@@ -953,6 +1018,19 @@
                 localStorage.setItem('matchQueue', JSON.stringify(queue));
                 searchInterval = setInterval(checkForMatch, 1000);
             }
+        } */
+
+        function findMatch() {
+            const btn = document.getElementById('matchmakingBtn');
+            const searchDiv = document.getElementById('searchingState');
+
+            if (btn) btn.style.display = 'none';
+            if (searchDiv) searchDiv.style.display = 'block';
+
+            // ⏳ Wait 2 seconds to "search"
+            setTimeout(() => {
+                startBotMatch();
+            }, 2000);
         }
 
         function checkForMatch() {
@@ -991,21 +1069,39 @@
             gameActive = true;
             score = 0;
             opponentScore = 0;
-            gameTime = 60;
 
-            gameYourScore.textContent = score;
-            gameOppScore.textContent = opponentScore;
-            gameTimer.textContent = gameTime;
+            document.getElementById('gameYourScore').textContent = score;
+            document.getElementById('gameOppScore').textContent = opponentScore;
 
-            updateInterval = setInterval(syncMatch, 500);
-            gameInterval = setInterval(gameTick, 1000);
+            gameCanvas = document.getElementById('gameCanvas');
 
-            // Game type-specific initialization
-            if (currentGameType === 'target') spawnTarget();
-            if (currentGameType === 'box') spawnBox();
+            // 🔥 HIDE EVERYTHING FIRST
+            document.getElementById('playerChar').style.display = 'none';
+            document.querySelectorAll('.target, .box-target').forEach(e => e.remove());
+            document.getElementById('tttBoard').style.display = 'none';
 
-            gameCanvas.addEventListener('mousemove', movePlayer);
+            // 🎯 TARGET GAME
+            if (currentGameType === 'target') {
+                document.getElementById('playerChar').style.display = 'flex';
+                gameInterval = setInterval(gameTick, 1000);
+                gameCanvas.addEventListener('mousemove', movePlayer);
+                spawnTarget();
+            }
+
+            // 🟦 BOX GAME
+            if (currentGameType === 'box') {
+                document.getElementById('playerChar').style.display = 'flex';
+                gameInterval = setInterval(gameTick, 1000);
+                gameCanvas.addEventListener('mousemove', movePlayer);
+                spawnBox();
+            }
+
+            // ❌⭕ TIC TAC TOE
+            if (currentGameType === 'tictactoe') {
+                initTicTacToe(); // 👈 ONLY THIS
+            }
         }
+
 
         function gameTick() {
             const timerEl = document.getElementById('gameTimer');
@@ -1025,34 +1121,56 @@
         }
 
         function spawnTarget() {
-            if (!gameActive) return;
-            const canvas = document.getElementById('gameCanvas');
-            if (!canvas) return;
+            if (!gameActive || !gameCanvas) return;
 
-            const t = document.createElement('div');
-            t.className = 'target';
-            t.textContent = '+1';
-            t.style.left = Math.random() * (canvas.clientWidth - 60) + 'px';
-            t.style.top = Math.random() * (canvas.clientHeight - 60) + 'px';
+            // Remove old targets
+            const oldTargets = gameCanvas.querySelectorAll('.target');
+            oldTargets.forEach(t => t.remove());
 
-            t.onclick = () => {
+            const target = document.createElement('div');
+            target.className = 'target';
+            target.textContent = '+1';
+
+            const size = 60;
+            const maxX = gameCanvas.clientWidth - size;
+            const maxY = gameCanvas.clientHeight - size;
+
+            target.style.left = Math.random() * maxX + 'px';
+            target.style.top = Math.random() * maxY + 'px';
+
+            target.onclick = () => {
                 score++;
-                const scoreEl = document.getElementById('gameYourScore');
-                if (scoreEl) scoreEl.textContent = score;
-                t.remove();
-                spawnTarget();
+                document.getElementById('gameYourScore').textContent = score;
+                target.remove();
+
+                // 🔁 spawn next target immediately
+                setTimeout(spawnTarget, 200);
             };
 
-            canvas.appendChild(t);
-            setTimeout(() => t.remove(), 2500);
+            gameCanvas.appendChild(target);
+
+            // Auto-remove & respawn if not clicked
+            setTimeout(() => {
+                if (gameActive && target.parentNode) {
+                    target.remove();
+                    spawnTarget();
+                }
+            }, 2000);
         }
 
+
         /* ================= BOX GAME ================= */
+        let boxTimeout = null;
+
         function spawnBox() {
             if (!gameActive) return;
+
+            // Remove old box if exists
+            const oldBox = document.querySelector('.box-target');
+            if (oldBox) oldBox.remove();
+
             const box = document.createElement('div');
-            box.className = 'target'; // reuse styles
-            box.style.background = 'linear-gradient(135deg, #3498db 0%, #2980b9 100%)';
+            box.className = 'box-target';
             box.textContent = '+1';
 
             box.style.left = Math.random() * (gameCanvas.clientWidth - 60) + 'px';
@@ -1061,13 +1179,127 @@
             box.onclick = () => {
                 score++;
                 gameYourScore.textContent = score;
+
+                clearTimeout(boxTimeout);
                 box.remove();
-                spawnBox(); // spawn next box
+                spawnBox(); // ✅ spawn next box
             };
 
             gameCanvas.appendChild(box);
-            setTimeout(() => box.remove(), 2500);
+
+            // ✅ If player doesn't click, still spawn next box
+            boxTimeout = setTimeout(() => {
+                if (box.parentNode) {
+                    box.remove();
+                    spawnBox(); // 🔥 THIS WAS MISSING
+                }
+            }, 2500);
         }
+
+        /* ================= BOX GAME ================= */
+        function startTicTacToe() {
+            currentGameType = 'tictactoe';
+            opponentName = '🤖 TicTacBot';
+            matchId = 'ttt_' + Date.now();
+
+            document.getElementById('gameYourName').textContent = currentUser;
+            document.getElementById('gameOppName').textContent = opponentName;
+
+            showPage('gamePage');
+            loadAds('game');
+
+            startGame();
+        }
+
+
+        function startFakeMatch() {
+            opponentName = 'BOT_AI';
+            isPlayer1 = true;
+            matchId = 'bot_' + Date.now();
+
+            document.getElementById('gameYourName').textContent = currentUser;
+            document.getElementById('gameOppName').textContent = opponentName;
+
+            showPage('gamePage');
+            loadAds('game');
+
+            startGame();
+        }
+
+        function initTicTacToe() {
+            gameActive = true;
+
+            const board = document.getElementById('tttBoard');
+            board.innerHTML = '';
+            board.style.display = 'grid';
+
+            tttBoard = Array(9).fill(null);
+            currentTurn = 'X';
+
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('div');
+                cell.style.height = '90px';
+                cell.style.background = '#111';
+                cell.style.display = 'flex';
+                cell.style.alignItems = 'center';
+                cell.style.justifyContent = 'center';
+                cell.style.fontSize = '48px';
+                cell.style.cursor = 'pointer';
+                cell.style.borderRadius = '12px';
+                cell.style.border = '2px solid #9124FF';
+
+                cell.onclick = () => handleMove(i, cell);
+                board.appendChild(cell);
+            }
+        }
+
+        function handleMove(index, cell) {
+            if (tttBoard[index] || !gameActive) return;
+
+            tttBoard[index] = 'X';
+            cell.textContent = '❌';
+
+            if (checkWin('X')) return endTicTacToe('You Win!');
+            if (tttBoard.every(c => c)) return endTicTacToe('Draw');
+
+            setTimeout(botMove, 600);
+        }
+
+        function botMove() {
+            const empty = tttBoard
+                .map((v, i) => v === null ? i : null)
+                .filter(v => v !== null);
+
+            if (!empty.length) return;
+
+            const move = empty[Math.floor(Math.random() * empty.length)];
+            tttBoard[move] = 'O';
+
+            document.getElementById('tttBoard').children[move].textContent = '⭕';
+
+            if (checkWin('O')) endTicTacToe('BOT Wins!');
+        }
+
+        function checkWin(player) {
+            const wins = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                [0, 4, 8], [2, 4, 6]
+            ];
+            return wins.some(w => w.every(i => tttBoard[i] === player));
+        }
+
+        function endTicTacToe(text) {
+            gameActive = false;
+
+            document.getElementById('winnerText').textContent = text;
+            document.getElementById('finalYourScore').textContent = '';
+            document.getElementById('finalOppScore').textContent = '';
+
+            document.getElementById('gameOverOverlay').style.display = 'flex';
+        }
+
+
 
         /* ================= SYNC MATCH ================= */
         function syncMatch() {
@@ -1075,14 +1307,21 @@
             const match = matches.find(m => m.matchId === matchId);
             if (!match) return;
 
-            if (isPlayer1) match.score1 = score;
-            else match.score2 = score;
+            // Write your score
+            if (isPlayer1) {
+                match.score1 = score;
+                opponentScore = match.score2;
+            } else {
+                match.score2 = score;
+                opponentScore = match.score1;
+            }
 
             match.time = gameTime;
             match.lastUpdate = Date.now();
 
-            const oppScoreEl = document.getElementById('gameOppScore');
-            if (oppScoreEl) oppScoreEl.textContent = isPlayer1 ? match.score2 : match.score1;
+            // Update UI
+            document.getElementById('gameYourScore').textContent = score;
+            document.getElementById('gameOppScore').textContent = opponentScore;
 
             localStorage.setItem('activeMatches', JSON.stringify(matches));
         }
@@ -1111,6 +1350,70 @@
         function returnToLobby() {
             const overlay = document.getElementById('gameOverOverlay');
             if (overlay) overlay.style.display = 'none';
+            showPage('lobbyPage');
+        }
+
+        /* ================= BOT ================= */
+        function startBotMatch() {
+            isBotMatch = true;
+            opponentName = "🤖 ArenaBot";
+            matchId = "bot_" + Date.now();
+            isPlayer1 = true;
+
+            // Show game UI
+            document.getElementById('gameYourName').textContent = currentUser;
+            document.getElementById('gameOppName').textContent = opponentName;
+
+            showPage('gamePage');
+            loadAds('game');
+
+            startGame();
+            startBotPlaying();
+        }
+
+        function startBotPlaying() {
+            clearInterval(botInterval);
+
+            botInterval = setInterval(() => {
+                if (!gameActive) {
+                    clearInterval(botInterval);
+                    return;
+                }
+
+                // Bot has a chance to score every second
+                const chance = Math.random();
+
+                if (chance > 0.6) {
+                    opponentScore++;
+                    document.getElementById('gameOppScore').textContent = opponentScore;
+                }
+            }, 1000);
+        }
+
+        /* ================= QUIET GAME ================= */
+        function quitGame() {
+            if (!confirm('Quit the match?')) return;
+
+            gameActive = false;
+
+            clearInterval(gameInterval);
+            clearInterval(updateInterval);
+
+            // Remove match from storage
+            let matches = JSON.parse(localStorage.getItem('activeMatches') || '[]');
+            matches = matches.filter(m => m.matchId !== matchId);
+            localStorage.setItem('activeMatches', JSON.stringify(matches));
+
+            // Reset state
+            matchId = null;
+            opponentName = '';
+            score = 0;
+            opponentScore = 0;
+
+            // Hide game & go to lobby
+            const overlay = document.getElementById('gameOverOverlay');
+            if (overlay) overlay.style.display = 'none';
+
             showPage('lobbyPage');
         }
 
@@ -1260,6 +1563,34 @@
 
 
 
+        function cancelSearch() {
+
+            // Stop checking for match
+            clearInterval(searchInterval);
+            searchInterval = null;
+
+            // Remove player from queue
+            let queue = JSON.parse(localStorage.getItem('matchQueue') || '[]');
+            queue = queue.filter(q => q.username !== currentUser);
+            localStorage.setItem('matchQueue', JSON.stringify(queue));
+
+            // Reset match state
+            matchId = null;
+            opponentName = '';
+            currentGameType = null;
+
+            // Reset UI
+            const btn = document.getElementById('matchmakingBtn');
+            const searchDiv = document.getElementById('searchingState');
+
+            if (btn) btn.style.display = 'block';
+            if (searchDiv) searchDiv.style.display = 'none';
+
+        }
+
+        function goToLeagues() {
+            window.location.href = 'player_league_view.html';
+        }
     </script>
 
 

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Tournament Details</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+/* SAME THEME */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a0a2e 100%);
+    color: white;
+    min-height: 100vh;
+}
+
+.header {
+    background: rgba(0,0,0,0.9);
+    padding: 20px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid rgba(145,36,255,0.5);
+}
+
+.btn-back {
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #9124FF, #FF6682);
+    border-radius: 8px;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 40px 20px;
+}
+
+.title {
+    font-size: 42px;
+    color: #ffd93d;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: #aaa;
+    margin-bottom: 30px;
+}
+
+/* MATCH CARDS */
+.round {
+    margin-bottom: 40px;
+}
+
+.round-title {
+    font-size: 28px;
+    margin-bottom: 15px;
+    border-bottom: 2px solid rgba(145,36,255,0.5);
+    padding-bottom: 10px;
+}
+
+.match-card {
+    background: rgba(0,0,0,0.6);
+    border: 2px solid rgba(255,217,61,0.3);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+}
+
+.match-players {
+    font-size: 20px;
+    margin-bottom: 8px;
+}
+
+.match-result {
+    font-size: 16px;
+    color: #ffd93d;
+}
+
+.winner {
+    color: #2ecc71;
+    font-weight: bold;
+}
+
+.loser {
+    color: #e74c3c;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <div>🏆 Tournament Details</div>
+    <a href="player_tournament_page.html" class="btn-back">← Back</a>
+</div>
+
+<div class="container">
+    <div class="title" id="tournamentName"></div>
+    <div class="subtitle" id="tournamentInfo"></div>
+
+    <div id="roundsContainer"></div>
+</div>
+
+<script>
+const tournamentId = localStorage.getItem('selectedTournamentId');
+const tournaments = JSON.parse(localStorage.getItem('tournaments') || '[]');
+const tournament = tournaments.find(t => t.id === tournamentId);
+
+if (!tournament) {
+    alert('Tournament not found');
+    window.location.href = 'player_tournament_page.html';
+}
+
+/* SAMPLE MATCH DATA (can be generated dynamically later) */
+if (!tournament.matches) {
+    tournament.matches = {
+        round1: [
+            { p1: 'Alice', p2: 'Bob', winner: 'Alice' },
+            { p1: 'Charlie', p2: 'David', winner: 'David' }
+        ],
+        round2: [
+            { p1: 'Alice', p2: 'David', winner: null }
+        ]
+    };
+    localStorage.setItem('tournaments', JSON.stringify(tournaments));
+}
+
+/* HEADER INFO */
+document.getElementById('tournamentName').textContent = tournament.name;
+document.getElementById('tournamentInfo').textContent =
+    `🎮 ${tournament.gameType} | 👥 ${tournament.participants.length} Players`;
+
+/* RENDER MATCHES */
+const roundsContainer = document.getElementById('roundsContainer');
+
+Object.entries(tournament.matches).forEach(([round, matches], index) => {
+    const roundDiv = document.createElement('div');
+    roundDiv.className = 'round';
+
+    roundDiv.innerHTML = `
+        <div class="round-title">Round ${index + 1}</div>
+    `;
+
+    matches.forEach(match => {
+        const matchDiv = document.createElement('div');
+        matchDiv.className = 'match-card';
+
+        matchDiv.innerHTML = `
+            <div class="match-players">
+                ${match.p1} vs ${match.p2}
+            </div>
+            <div class="match-result">
+                ${match.winner
+                    ? `Winner: <span class="winner">${match.winner}</span> | 
+                       Loser: <span class="loser">${match.winner === match.p1 ? match.p2 : match.p1}</span>`
+                    : '⏳ Match Pending'}
+            </div>
+        `;
+
+        roundDiv.appendChild(matchDiv);
+    });
+
+    roundsContainer.appendChild(roundDiv);
+});
+</script>
+
+</body>
+</html>

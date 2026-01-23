@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>League Owner Dashboard - Gaming Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0a2e 100%);
+            color: white;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid rgba(145, 36, 255, 0.5);
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .btn-logout {
+            padding: 12px 24px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 15px;
+            border-radius: 15px;
+            border: 2px solid rgba(145, 36, 255, 0.5);
+        }
+
+        .tab-btn {
+            padding: 15px 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #9124FF, #FF6682);
+            border-color: #9124FF;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid rgba(145, 36, 255, 0.5);
+            text-align: center;
+        }
+
+        .stat-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #ffd93d;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 16px;
+            color: #aaa;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .card {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: 15px;
+            border: 2px solid rgba(145, 36, 255, 0.5);
+        }
+
+        .card h2 {
+            font-size: 28px;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(145, 36, 255, 0.5);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #9124FF, #FF6682);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(145, 36, 255, 0.5);
+        }
+
+        .list-container {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .league-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border: 2px solid rgba(145, 36, 255, 0.3);
+            transition: all 0.3s;
+        }
+
+        .league-item:hover {
+            border-color: #9124FF;
+            transform: translateY(-2px);
+        }
+
+        .league-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .league-name {
+            font-size: 22px;
+            font-weight: bold;
+            color: #9124FF;
+        }
+
+        .status-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-badge.pending {
+            background: #f39c12;
+            color: white;
+        }
+
+        .status-badge.approved {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .status-badge.rejected {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .league-info {
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 8px;
+        }
+
+        .league-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn-action {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-view {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-edit {
+            background: #f39c12;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .tournament-pill {
+            display: inline-block;
+            padding: 4px 10px;
+            background: rgba(255, 217, 61, 0.2);
+            border-radius: 15px;
+            font-size: 12px;
+            margin-right: 5px;
+            margin-top: 5px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #1a1a2e;
+            padding: 40px;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 2px solid rgba(145, 36, 255, 0.5);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .btn-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+        }
+
+        .tournament-selector {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .tournament-checkbox {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        .tournament-checkbox input {
+            margin-right: 10px;
+            width: 20px;
+            height: 20px;
+        }
+
+        @media (max-width: 1200px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div class="header-title">
+            <span>🏅 League Owner: <span id="ownerUsername"></span></span>
+        </div>
+        <button class="btn-logout" onclick="logout()">🚪 Logout</button>
+    </div>
+
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">🏅</div>
+                <div class="stat-value" id="totalLeagues">0</div>
+                <div class="stat-label">Total Leagues</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-value" id="approvedLeagues">0</div>
+                <div class="stat-label">Approved</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⏳</div>
+                <div class="stat-value" id="pendingLeagues">0</div>
+                <div class="stat-label">Pending</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🏆</div>
+                <div class="stat-value" id="totalTournaments">0</div>
+                <div class="stat-label">Total Tournaments</div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('leagues')">🏅 My Leagues</button>
+            <button class="tab-btn" onclick="switchTab('create')">➕ Create League</button>
+            <button class="tab-btn" onclick="switchTab('requests')">📋 League Requests</button>
+        </div>
+
+        <div id="leaguesTab" class="tab-content active">
+            <div class="card" style="grid-column: 1/-1;">
+                <h2>🏅 My Leagues</h2>
+                <div class="list-container" id="leaguesList"></div>
+            </div>
+        </div>
+
+        <div id="createTab" class="tab-content">
+            <div class="content-grid">
+                <div class="card">
+                    <h2>➕ Create New League</h2>
+
+                    <div class="form-group">
+                        <label>League Name *</label>
+                        <input type="text" id="leagueName" placeholder="e.g., Champions League 2024">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description *</label>
+                        <textarea id="leagueDescription" placeholder="Describe your league..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>League Duration</label>
+                        <select id="leagueDuration">
+                            <option value="1 month">1 Month</option>
+                            <option value="3 months">3 Months</option>
+                            <option value="6 months">6 Months</option>
+                            <option value="1 year">1 Year</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Entry Fee (Optional)</label>
+                        <input type="number" id="leagueEntryFee" placeholder="0" min="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Prize Pool (Optional)</label>
+                        <input type="number" id="leaguePrizePool" placeholder="0" min="0">
+                    </div>
+
+                    <button class="btn-primary" onclick="openTournamentSelector()">
+                        ➕ Select Tournaments
+                    </button>
+
+                    <div id="selectedTournamentsDisplay" style="margin-top: 20px; min-height: 50px;">
+                        <p style="color: #aaa; font-size: 14px;">No tournaments selected</p>
+                    </div>
+
+                    <button class="btn-primary" onclick="createLeague()" style="margin-top: 20px;">
+                        🚀 Submit for Approval
+                    </button>
+                </div>
+
+                <div class="card">
+                    <h2>ℹ️ League Guidelines</h2>
+                    <div style="color: #ddd; line-height: 1.8;">
+                        <p style="margin-bottom: 15px;">
+                            <strong>What is a League?</strong><br>
+                            A league is a collection of multiple tournaments that run over a period of time. Players
+                            compete across all tournaments to earn points and rankings.
+                        </p>
+                        <p style="margin-bottom: 15px;">
+                            <strong>Requirements:</strong><br>
+                            • League must have a clear name and description<br>
+                            • Select at least 2 tournaments<br>
+                            • All leagues require admin approval<br>
+                            • Entry fees are optional
+                        </p>
+                        <p style="margin-bottom: 15px;">
+                            <strong>Features:</strong><br>
+                            • Create seasonal competitions<br>
+                            • Track player rankings<br>
+                            • Set prize pools<br>
+                            • Manage multiple tournaments
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="requestsTab" class="tab-content">
+            <div class="card" style="grid-column: 1/-1;">
+                <h2>📋 League Approval Requests</h2>
+                <div class="list-container" id="requestsList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tournament Selector Modal -->
+    <div id="tournamentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Select Tournaments</h2>
+                <button class="btn-close" onclick="closeTournamentSelector()">×</button>
+            </div>
+            <div class="tournament-selector" id="tournamentSelector"></div>
+            <button class="btn-primary" onclick="confirmTournamentSelection()" style="margin-top: 20px;">
+                Confirm Selection
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let selectedTournaments = [];
+
+        const currentUser = localStorage.getItem('currentUser') || 'LeagueOwner';
+        const currentRole = localStorage.getItem('currentRole') || 'league_owner';
+
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById(tab + 'Tab').classList.add('active');
+
+            if (tab === 'leagues') loadLeagues();
+            if (tab === 'requests') loadRequests();
+        }
+
+        function openTournamentSelector() {
+            const tournaments = JSON.parse(localStorage.getItem('tournaments') || '[]');
+            const selector = document.getElementById('tournamentSelector');
+
+            if (!tournaments.length) {
+                selector.innerHTML = '<p style="text-align:center;color:#aaa;padding:40px;">No tournaments available. Create tournaments first!</p>';
+            } else {
+                selector.innerHTML = tournaments.map(t => `
+                    <div class="tournament-checkbox">
+                        <input type="checkbox" id="tour_${t.id}" value="${t.id}" 
+                            ${selectedTournaments.includes(t.id) ? 'checked' : ''}>
+                        <label for="tour_${t.id}">
+                            <strong>${t.name}</strong><br>
+                            <span style="font-size:12px;color:#aaa;">${t.gameType} • ${new Date(t.startDate).toLocaleDateString()}</span>
+                        </label>
+                    </div>
+                `).join('');
+            }
+
+            document.getElementById('tournamentModal').classList.add('active');
+        }
+
+        function closeTournamentSelector() {
+            document.getElementById('tournamentModal').classList.remove('active');
+        }
+
+        function confirmTournamentSelection() {
+            const checkboxes = document.querySelectorAll('#tournamentSelector input[type="checkbox"]:checked');
+            selectedTournaments = Array.from(checkboxes).map(cb => cb.value);
+
+            const tournaments = JSON.parse(localStorage.getItem('tournaments') || '[]');
+            const display = document.getElementById('selectedTournamentsDisplay');
+
+            if (selectedTournaments.length === 0) {
+                display.innerHTML = '<p style="color:#aaa;font-size:14px;">No tournaments selected</p>';
+            } else {
+                display.innerHTML = `
+                    <p style="color:#2ecc71;margin-bottom:10px;"><strong>✅ ${selectedTournaments.length} Tournaments Selected:</strong></p>
+                    ${selectedTournaments.map(id => {
+                    const tour = tournaments.find(t => t.id === id);
+                    return `<span class="tournament-pill">🏆 ${tour?.name || 'Unknown'}</span>`;
+                }).join('')}
+                `;
+            }
+
+            closeTournamentSelector();
+        }
+
+        function createLeague() {
+            const name = document.getElementById('leagueName').value.trim();
+            const description = document.getElementById('leagueDescription').value.trim();
+            const duration = document.getElementById('leagueDuration').value;
+            const entryFee = document.getElementById('leagueEntryFee').value || 0;
+            const prizePool = document.getElementById('leaguePrizePool').value || 0;
+
+            if (!name) {
+                alert('Please enter league name');
+                return;
+            }
+            if (!description) {
+                alert('Please enter league description');
+                return;
+            }
+            if (selectedTournaments.length < 2) {
+                alert('Please select at least 2 tournaments');
+                return;
+            }
+
+            const league = {
+                id: 'league_' + Date.now(),
+                name,
+                description,
+                duration,
+                entryFee: parseFloat(entryFee),
+                prizePool: parseFloat(prizePool),
+                tournaments: selectedTournaments,
+                owner: currentUser,
+                status: 'pending',
+                createdAt: new Date().toISOString(),
+                participants: []
+            };
+
+            const leagues = JSON.parse(localStorage.getItem('leagues') || '[]');
+            leagues.push(league);
+            localStorage.setItem('leagues', JSON.stringify(leagues));
+
+            // Create approval request
+            const requests = JSON.parse(localStorage.getItem('leagueRequests') || '[]');
+            requests.push({
+                id: 'req_' + Date.now(),
+                leagueId: league.id,
+                requestedBy: currentUser,
+                requestedAt: new Date().toISOString(),
+                status: 'pending'
+            });
+            localStorage.setItem('leagueRequests', JSON.stringify(requests));
+
+            // Clear form
+            document.getElementById('leagueName').value = '';
+            document.getElementById('leagueDescription').value = '';
+            document.getElementById('leagueEntryFee').value = '';
+            document.getElementById('leaguePrizePool').value = '';
+            selectedTournaments = [];
+            document.getElementById('selectedTournamentsDisplay').innerHTML = '<p style="color:#aaa;font-size:14px;">No tournaments selected</p>';
+
+            updateStats();
+            alert('✅ League submitted for admin approval!');
+            switchTab('requests');
+        }
+
+        function loadLeagues() {
+            const leagues = JSON.parse(localStorage.getItem('leagues') || '[]');
+            const myLeagues = leagues.filter(l => l.owner === currentUser);
+            const list = document.getElementById('leaguesList');
+
+            if (!myLeagues.length) {
+                list.innerHTML = '<p style="text-align:center;color:#aaa;padding:60px;">No leagues created yet. Create your first league!</p>';
+                return;
+            }
+
+            const tournaments = JSON.parse(localStorage.getItem('tournaments') || '[]');
+
+            list.innerHTML = myLeagues.map(league => `
+                <div class="league-item">
+                    <div class="league-header">
+                        <div class="league-name">🏅 ${league.name}</div>
+                        <span class="status-badge ${league.status}">${league.status.toUpperCase()}</span>
+                    </div>
+                    <div class="league-info">📝 ${league.description}</div>
+                    <div class="league-info">⏱️ Duration: ${league.duration}</div>
+                    <div class="league-info">💰 Entry Fee: $${league.entryFee} | Prize Pool: $${league.prizePool}</div>
+                    <div class="league-info">
+                        <strong>Tournaments (${league.tournaments.length}):</strong><br>
+                        ${league.tournaments.map(id => {
+                const tour = tournaments.find(t => t.id === id);
+                return `<span class="tournament-pill">🏆 ${tour?.name || 'Unknown'}</span>`;
+            }).join('')}
+                    </div>
+                    <div class="league-actions">
+                        <button class="btn-action btn-view" onclick="viewLeague('${league.id}')">👁️ View</button>
+                        ${league.status === 'pending' ? `
+                            <button class="btn-action btn-edit" onclick="editLeague('${league.id}')">✏️ Edit</button>
+                            <button class="btn-action btn-delete" onclick="deleteLeague('${league.id}')">🗑️ Delete</button>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadRequests() {
+            const requests = JSON.parse(localStorage.getItem('leagueRequests') || '[]');
+            const leagues = JSON.parse(localStorage.getItem('leagues') || '[]');
+            const myRequests = requests.filter(r => {
+                const league = leagues.find(l => l.id === r.leagueId);
+                return league && league.owner === currentUser;
+            });
+
+            const list = document.getElementById('requestsList');
+
+            if (!myRequests.length) {
+                list.innerHTML = '<p style="text-align:center;color:#aaa;padding:60px;">No league requests found.</p>';
+                return;
+            }
+
+            list.innerHTML = myRequests.map(req => {
+                const league = leagues.find(l => l.id === req.leagueId);
+                if (!league) return '';
+
+                return `
+                    <div class="league-item">
+                        <div class="league-header">
+                            <div class="league-name">🏅 ${league.name}</div>
+                            <span class="status-badge ${req.status}">${req.status.toUpperCase()}</span>
+                        </div>
+                        <div class="league-info">📅 Submitted: ${new Date(req.requestedAt).toLocaleDateString()}</div>
+                        <div class="league-info">📝 ${league.description}</div>
+                        ${req.status === 'rejected' && req.rejectionReason ? `
+                            <div style="background:rgba(231,76,60,0.1);padding:10px;border-radius:8px;margin-top:10px;">
+                                <strong style="color:#e74c3c;">❌ Rejection Reason:</strong><br>
+                                ${req.rejectionReason}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function viewLeague(leagueId) {
+            const leagues = JSON.parse(localStorage.getItem('leagues') || '[]');
+            const league = leagues.find(l => l.id === leagueId);
+            if (!league) return;
+
+            const tournaments = JSON.parse(localStorage.getItem('tournaments') || '[]');
+            const tournamentNames = league.tournaments.map(id => {
+                const t = tournaments.find(t => t.id === id);
+                return t ? t.name : 'Unknown';
+            }).join('\n• ');
+
+            alert(`🏅 League Details\n\nName: ${league.name}\n\nDescription: ${league.description}\n\nDuration: ${league.duration}\n\nEntry Fee: $${league.entryFee}\nPrize Pool: $${league.prizePool}\n\nStatus: ${league.status}\n\nTournaments:\n• ${tournamentNames}`);
+        }
+
+        function editLeague(leagueId) {
+            alert('Edit functionality coming soon!');
+        }
+
+        function deleteLeague(leagueId) {
+            if (!confirm('Are you sure you want to delete this league?')) return;
+
+            let leagues = JSON.parse(localStorage.getItem('leagues') || '[]');
+            leagues = leagues.filter(l => l.id !== leagueId);
+            localStorage.setItem('leagues', JSON.stringify(leagues));
+
+            let requests = JSON.parse(localStorage.getItem('leagueRequests') || '[]');
+            requests = requests.filter(r => r.leagueId !== leagueId);
+            localStorage.setItem('leagueRequests', JSON.stringify(requests));
+
+            updateStats();
+            loadLeagues();
+            loadRequests();
+            alert('League deleted successfully!');
+        }
+
+        function updateStats() {
+            const leagues = JSON.parse(localStorage.getItem('leagues') || '[]');
+            const myLeagues = leagues.filter(l => l.owner === currentUser);
+
+            document.getElementById('totalLeagues').textContent = myLeagues.length;
+            document.getElementById('approvedLeagues').textContent = myLeagues.filter(l => l.status === 'approved').length;
+            document.getElementById('pendingLeagues').textContent = myLeagues.filter(l => l.status === 'pending').length;
+
+            let totalTournaments = 0;
+            myLeagues.forEach(l => totalTournaments += l.tournaments.length);
+            document.getElementById('totalTournaments').textContent = totalTournaments;
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('currentUser');
+                localStorage.removeItem('currentRole');
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+
+</html>

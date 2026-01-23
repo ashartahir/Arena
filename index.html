@@ -273,6 +273,7 @@
                                                   <select id="loginRole" class="inputbg" onchange="updateRoleInfo()">
                                                     <option value="player" class="bg">Player</option>
                                                     <option value="advertiser" class="bg">Administrator</option>
+                                                    <option value="LeagueOwner" class="bg">League Owner</option>
                                                     <option value="spectator" class="bg">Spectator</option>
                                                   </select>
                                                 </div>
@@ -627,6 +628,7 @@ document.addEventListener('keydown', function (e) {
     if (e.key === 'Enter') handleLogin();
 });
 
+<<<<<<< Updated upstream
 /* ---------- AUTO REDIRECT IF LOGGED IN ---------- */
 window.onload = function() {
     const session = JSON.parse(localStorage.getItem('session') || '{}');
@@ -636,6 +638,11 @@ window.onload = function() {
     }
 };
 </script>
+=======
+    /* ---------- AUTO REDIRECT IF LOGGED IN ---------- */
+    
+  </script>
+>>>>>>> Stashed changes
 
 </body>
 
